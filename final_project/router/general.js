@@ -42,7 +42,21 @@ public_users.get('/', function (req, res) {
 public_users.get('/isbn/:isbn', function (req, res) {
   //Write your code here
   const { isbn } = req.params;
-  return res.status(300).json(books[isbn]);
+
+  const getBookByIsbn = new Promise((resolve, reject) => {
+    if (books[isbn]) resolve(books[isbn]);
+    else reject(new Error('Failed to get the book'));
+  });
+
+  getBookByIsbn.then(
+    (result) => {
+      return res.json(result);
+    },
+    (err) => {
+      console.log(err);
+      return res.status(500).send('Failed to get books');
+    }
+  );
 });
 
 // Get book details based on author
