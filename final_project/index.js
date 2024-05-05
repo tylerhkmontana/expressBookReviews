@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const customer_routes = require('./router/auth_users.js').authenticated;
 const genl_routes = require('./router/general.js').general;
-const authenticatedUser = require('./router/auth_users.js').authenticatedUser;
 
 const app = express();
 
@@ -20,22 +19,18 @@ app.use(
 
 app.use('/customer/auth/*', function auth(req, res, next) {
   //Write the authenication mechanism here
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  if (req.session.authorization) {
+    let token = req.session.authorization['accessToken'];
+    if (token == null) return res.sendStatus(401);
 
-  if (token == null) return res.sendStatus(401);
+    jwt.verify(token, 'access', (err, user) => {
+      if (err) return res.sendStatus(403);
 
-  jwt.verify(token, 'fingerprint_customer', (err, user) => {
-    if (err) return res.sendStatus(403);
-
-    const { username, password } = user;
-    if (authenticatedUser(username, password)) {
       req.user = user;
+
       next();
-    } else {
-      return res.sendStatus(403);
-    }
-  });
+    });
+  } else return res.sendStatus(403);
 });
 
 const PORT = 5000;

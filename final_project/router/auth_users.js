@@ -11,7 +11,7 @@ const isValid = (username) => {
 
   const user = users.find((user) => user.username === username);
 
-  return !!user;
+  return !user;
 };
 
 const authenticatedUser = (username, password) => {
@@ -27,17 +27,53 @@ const authenticatedUser = (username, password) => {
 //only registered users can login
 regd_users.post('/login', (req, res) => {
   //Write your code here
-  return res.status(300).json({ message: 'Yet to be implemented' });
+  const { username, password } = req.body;
+
+  if (!username || !password) return res.status(404).send('Body empty');
+  if (authenticatedUser(username, password)) {
+    const accessToken = jwt.sign({ username }, 'access', {
+      expiresIn: 60 * 60,
+    });
+    req.session.authorization = {
+      accessToken,
+    };
+
+    return res.status(200).send('user successfully logged in!');
+  } else {
+    return res.status(403).json({ message: 'Unauthorized User' });
+  }
 });
 
 // Add a book review
 regd_users.put('/auth/review/:isbn', (req, res) => {
   //Write your code here
+  const { review } = req.query;
+  const { username } = req.user;
+  const { isbn } = req.params;
 
-  return res.status(300).json({ message: 'Yet to be implemented' });
+  if (Object.keys(books).includes(isbn)) {
+    books[isbn].reviews[username] = review;
+    return res.json({
+      message: 'The review was successfully added',
+      book: books[isbn],
+    });
+  } else return res.status(400).send('Wrong isbn');
+});
+
+regd_users.delete('/auth/review/:isbn', (req, res) => {
+  //Write your code here
+  const { username } = req.user;
+  const { isbn } = req.params;
+
+  if (Object.keys(books).includes(isbn)) {
+    delete books[isbn].reviews[username];
+    return res.json({
+      message: 'The review was successfully deleted',
+      book: books[isbn],
+    });
+  } else return res.status(400).send('Wrong isbn');
 });
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
-module.exports.authenticatedUser = authenticatedUser;
