@@ -8,6 +8,10 @@ let users = [];
 const isValid = (username) => {
   //returns boolean
   //write code to check is the username is valid
+
+  const user = users.find((user) => user.username === username);
+
+  return !!user;
 };
 
 const authenticatedUser = (username, password) => {

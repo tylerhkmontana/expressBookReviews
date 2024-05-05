@@ -8,15 +8,14 @@ public_users.post('/register', (req, res) => {
   //Write your code here
   const { username, password } = req.body;
 
-  const user = users.find((user) => user.username === username);
-  if (user) {
-    return res.status(400).json({ message: 'User already exists' });
-  } else if (!username || !password) {
+  if (!username || !password) {
     return res.status(401).json({ message: 'Not enough creds provided' });
-  } else {
+  } else if (isValid(username)) {
     users.push({ username, password });
     res.send('User has been registered');
     console.log(users);
+  } else {
+    return res.status(400).json({ message: 'User already exists' });
   }
 });
 
