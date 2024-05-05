@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const customer_routes = require('./router/auth_users.js').authenticated;
 const genl_routes = require('./router/general.js').general;
+const authenticatedUser = require('./router/auth_users.js').authenticatedUser;
 
 const app = express();
 
@@ -27,9 +28,13 @@ app.use('/customer/auth/*', function auth(req, res, next) {
   jwt.verify(token, 'fingerprint_customer', (err, user) => {
     if (err) return res.sendStatus(403);
 
-    req.user = user;
-
-    next();
+    const { username, password } = user;
+    if (authenticatedUser(username, password)) {
+      req.user = user;
+      next();
+    } else {
+      return res.sendStatus(403);
+    }
   });
 });
 
