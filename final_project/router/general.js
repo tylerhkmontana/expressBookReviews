@@ -92,13 +92,13 @@ public_users.get('/title/:title', function (req, res) {
   const { title } = req.params;
 
   const getBooksByTitle = new Promise((resolve, reject) => {
-    const booksByAuthor = [];
+    const booksByTitle = [];
     Object.keys(books).forEach((isbn) => {
-      if (books[isbn].author === author) booksByAuthor.push(books[isbn]);
+      if (books[isbn].title === title) booksByAuthor.push(books[isbn]);
     });
 
-    if (booksByAuthor.length > 0) resolve(booksByAuthor);
-    else reject(new Error('No book found by the author'));
+    if (booksByTitle.length > 0) resolve(booksByTitle);
+    else reject(new Error('No book found by the title'));
   });
 
   getBooksByTitle.then(
