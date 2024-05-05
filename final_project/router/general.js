@@ -64,11 +64,25 @@ public_users.get('/author/:author', function (req, res) {
   //Write your code here
   const { author } = req.params;
 
-  const booksByAuthor = [];
-  Object.keys(books).forEach((isbn) => {
-    if (books[isbn].author === author) booksByAuthor.push(books[isbn]);
+  const getBooksByAuthor = new Promise((resolve, reject) => {
+    const booksByAuthor = [];
+    Object.keys(books).forEach((isbn) => {
+      if (books[isbn].author === author) booksByAuthor.push(books[isbn]);
+    });
+
+    if (booksByAuthor.length > 0) resolve(booksByAuthor);
+    else reject(new Error('No book found by the author'));
   });
-  return res.status(300).json(booksByAuthor);
+
+  getBooksByAuthor.then(
+    (result) => {
+      return res.json(result);
+    },
+    (err) => {
+      console.log(err);
+      return res.status(500).send('Failed to get books');
+    }
+  );
 });
 
 // Get all books based on title
@@ -77,11 +91,25 @@ public_users.get('/title/:title', function (req, res) {
   //Write your code here
   const { title } = req.params;
 
-  const booksByAuthor = [];
-  Object.keys(books).forEach((isbn) => {
-    if (books[isbn].title === title) booksByAuthor.push(books[isbn]);
+  const getBooksByTitle = new Promise((resolve, reject) => {
+    const booksByAuthor = [];
+    Object.keys(books).forEach((isbn) => {
+      if (books[isbn].author === author) booksByAuthor.push(books[isbn]);
+    });
+
+    if (booksByAuthor.length > 0) resolve(booksByAuthor);
+    else reject(new Error('No book found by the author'));
   });
-  return res.status(300).json(booksByAuthor);
+
+  getBooksByTitle.then(
+    (result) => {
+      return res.json(result);
+    },
+    (err) => {
+      console.log(err);
+      return res.status(500).send('Failed to get books');
+    }
+  );
 });
 
 //  Get book review
